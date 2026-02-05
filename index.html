@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNI - Entretien d'Accompagnement</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .rating-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .rating-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .rating-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .saved-interviews {
+            padding: 40px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .interview-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .interview-info h3 {
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .interview-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .interview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .form-content {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 RDV Annuel d'Accompagnement BNI</h1>
+            <p>Améliorer l'expérience et le retour sur investissement</p>
+        </div>
+
+        <div class="form-content">
+            <form id="interviewForm">
+                <!-- Section: Informations Membre -->
+                <div class="section">
+                    <h2 class="section-title">👤 Informations du Membre</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberName">Prénom et Nom du Membre *</label>
+                            <input type="text" id="memberName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="introDate">Date d'intronisation *</label>
+                            <input type="date" id="introDate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="yearsInBNI">Nombre d'années BNI</label>
+                            <input type="number" id="yearsInBNI" step="0.1" placeholder="Ex: 1.8">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: DONNE -->
+                <div class="section">
+                    <h2 class="section-title">📤 Ce que le membre DONNE</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="meetings">Nombre de réunions sur l'année écoulée</label>
+                            <input type="number" id="meetings" placeholder="Ex: 67">
+                        </div>
+                        <div class="form-group">
+                            <label for="absences">Nombre d'absences / suppléances</label>
+                            <input type="number" id="absences" placeholder="Ex: 9">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="recosGiven">Nombre de recommandations données</label>
+                            <input type="number" id="recosGiven" placeholder="Ex: 101">
+                        </div>
+                        <div class="form-group">
+                            <label for="visitors">Nombre de visiteurs</label>
+                            <input type="number" id="visitors" placeholder="Ex: 13">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="oneToOne">Nombre de TàT (Tête à Tête)</label>
+                            <input type="number" id="oneToOne" placeholder="Ex: 43">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: REÇU -->
+                <div class="section">
+                    <h2 class="section-title">📥 Ce que le membre REÇOIT</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="recosReceived">Nombre de recommandations reçues</label>
+                            <input type="number" id="recosReceived" placeholder="Ex: 45">
+                        </div>
+                        <div class="form-group">
+                            <label for="recosInternal">Dont Internes</label>
+                            <input type="number" id="recosInternal" placeholder="Ex: 8">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="recosExternal">Dont Externes</label>
+                            <input type="number" id="recosExternal" placeholder="Ex: 37">
+                        </div>
+                        <div class="form-group">
+                            <label for="caReceived">Chiffre d'affaires reçu (DH)</label>
+                            <input type="number" id="caReceived" placeholder="Ex: 10000000">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="caIntroBefore">CA depuis intronisation (DH)</label>
+                            <input type="number" id="caIntroBefore" placeholder="Depuis l'intronisation">
+                        </div>
+                        <div class="form-group">
+                            <label for="ca12Months">CA sur les 12 derniers mois (DH)</label>
+                            <input type="number" id="ca12Months">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mpbDonne">MPB donné (12 derniers mois)</label>
+                            <input type="number" id="mpbDonne">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Apports BNI -->
+                <div class="section">
+                    <h2 class="section-title">✨ Qu'est-ce que BNI t'a apporté de positif ?</h2>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_business" name="apport" value="Business">
+                            <label for="apport_business">Business</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_competences" name="apport" value="Compétences">
+                            <label for="apport_competences">Compétences</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_entraide" name="apport" value="Entraide">
+                            <label for="apport_entraide">Entraide</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_structure" name="apport" value="Structure de mon offre">
+                            <label for="apport_structure">Structure de mon offre</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_conseils" name="apport" value="Conseils">
+                            <label for="apport_conseils">Conseils</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apport_veille" name="apport" value="Veille Économique">
+                            <label for="apport_veille">Veille Économique</label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="apportAutres">Autres apports</label>
+                        <textarea id="apportAutres" placeholder="Décrivez d'autres apports positifs..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Ressenti -->
+                <div class="section">
+                    <h2 class="section-title">💭 Ressenti et Souhaits</h2>
+                    <div class="form-group">
+                        <label>Ton ressenti général sur ton groupe (1-10) *</label>
+                        <div class="rating-group" id="ratingGroup">
+                            <button type="button" class="rating-btn" data-value="1">1</button>
+                            <button type="button" class="rating-btn" data-value="2">2</button>
+                            <button type="button" class="rating-btn" data-value="3">3</button>
+                            <button type="button" class="rating-btn" data-value="4">4</button>
+                            <button type="button" class="rating-btn" data-value="5">5</button>
+                            <button type="button" class="rating-btn" data-value="6">6</button>
+                            <button type="button" class="rating-btn" data-value="7">7</button>
+                            <button type="button" class="rating-btn" data-value="8">8</button>
+                            <button type="button" class="rating-btn" data-value="9">9</button>
+                            <button type="button" class="rating-btn" data-value="10">10</button>
+                        </div>
+                        <input type="hidden" id="rating" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="ameliorations">Qu'est-ce que tu voudrais obtenir / améliorer (hors business)</label>
+                        <textarea id="ameliorations" placeholder="Ex: Plus de cohésion dans le groupe..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="redflags">RED FLAGS</label>
+                        <textarea id="redflags" placeholder="Ex: Sphères pro absentes, Leaders de sphères défaillants..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Analyse -->
+                <div class="section">
+                    <h2 class="section-title">📊 Analyse</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="panierMoyen">Panier moyen - entreprise (DH)</label>
+                            <input type="number" id="panierMoyen">
+                        </div>
+                        <div class="form-group">
+                            <label for="caMoyenBNI">CA moyen BNI (CA reçu/Nbre reco converties)</label>
+                            <input type="number" id="caMoyenBNI">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tauxConversion">Taux de conversion BNI (%)</label>
+                            <input type="number" id="tauxConversion" step="0.1" placeholder="Ex: 75.5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="causesNonConversion">Causes de non-conversion</label>
+                        <textarea id="causesNonConversion" placeholder="Ex: Le client ne connait pas son besoin..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="apporteursPrincipaux">Mes apporteurs-Membres principaux</label>
+                        <textarea id="apporteursPrincipaux" placeholder="Listez les membres qui vous apportent le plus de business..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Projet d'entreprise -->
+                <div class="section">
+                    <h2 class="section-title">🎯 Projet d'Entreprise</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="activiteBNI">Activité BNI</label>
+                            <input type="text" id="activiteBNI" placeholder="Ex: Sécurité & Gardiennage">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientTop">Mon client top (cible-type d'activité)</label>
+                            <input type="text" id="clientTop" placeholder="Ex: PME / PMI">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="offrePreferee">L'offre que je préfère vendre</label>
+                        <input type="text" id="offrePreferee" placeholder="Ex: Gardiennage">
+                    </div>
+                    <div class="form-group">
+                        <label for="projetsAvenir">Mes projets entreprise à venir</label>
+                        <textarea id="projetsAvenir" placeholder="Décrivez vos projets futurs..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Objectifs BNI -->
+                <div class="section">
+                    <h2 class="section-title">🎯 Objectifs BNI</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="objectifCAActuel">Objectifs CA Année en cours (DH)</label>
+                            <input type="number" id="objectifCAActuel">
+                        </div>
+                        <div class="form-group">
+                            <label for="ecartObjectif">Écart entre objectif et CA réalisé (DH)</label>
+                            <input type="number" id="ecartObjectif">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="objectifN1">Objectif N+1 (DH)</label>
+                            <input type="number" id="objectifN1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="activitesRecherchees">Activités recherchées</label>
+                        <textarea id="activitesRecherchees" placeholder="Listez les types d'activités que vous recherchez..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Propositions Ambassadeur -->
+                <div class="section">
+                    <h2 class="section-title">💡 Mes propositions d'AMBASSADEUR</h2>
+                    <div class="form-group">
+                        <label for="propositionsAmbassadeur">Évaluation et propositions</label>
+                        <textarea id="propositionsAmbassadeur" placeholder="Ex: Membre à fort potentiel, peut encore développer davantage..." rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionsObjectifs">Actions pour atteindre les objectifs (quoi-comment-quand)</label>
+                        <textarea id="actionsObjectifs" placeholder="1. faire le tour des chapters.
+2. ..." rows="6"></textarea>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 Réinitialiser</button>
+                    <button type="button" class="btn btn-primary" onclick="saveInterview()">💾 Sauvegarder</button>
+                    <button type="button" class="btn btn-primary" onclick="generatePDF()">📄 Générer PDF</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Saved Interviews Section -->
+        <div class="saved-interviews hidden" id="savedInterviewsSection">
+            <h2 class="section-title">📚 Entretiens Sauvegardés</h2>
+            <div id="interviewsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Rating buttons functionality
+        document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('rating').value = this.dataset.value;
+            });
+        });
+
+        // Reset form
+        function resetForm() {
+            if (confirm('Voulez-vous vraiment réinitialiser le formulaire ?')) {
+                document.getElementById('interviewForm').reset();
+                document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+            }
+        }
+
+        // Save interview to localStorage
+        function saveInterview() {
+            const form = document.getElementById('interviewForm');
+            if (!form.checkValidity()) {
+                alert('Veuillez remplir tous les champs obligatoires (*)');
+                form.reportValidity();
+                return;
+            }
+
+            const data = collectFormData();
+            const interviews = JSON.parse(localStorage.getItem('bniInterviews') || '[]');
+            data.id = Date.now();
+            data.saveDate = new Date().toISOString();
+            interviews.push(data);
+            localStorage.setItem('bniInterviews', JSON.stringify(interviews));
+            
+            alert('✅ Entretien sauvegardé avec succès !');
+            loadSavedInterviews();
+        }
+
+        // Collect form data
+        function collectFormData() {
+            const apports = Array.from(document.querySelectorAll('input[name="apport"]:checked'))
+                .map(cb => cb.value);
+
+            return {
+                memberName: document.getElementById('memberName').value,
+                introDate: document.getElementById('introDate').value,
+                yearsInBNI: document.getElementById('yearsInBNI').value,
+                meetings: document.getElementById('meetings').value,
+                absences: document.getElementById('absences').value,
+                recosGiven: document.getElementById('recosGiven').value,
+                visitors: document.getElementById('visitors').value,
+                oneToOne: document.getElementById('oneToOne').value,
+                recosReceived: document.getElementById('recosReceived').value,
+                recosInternal: document.getElementById('recosInternal').value,
+                recosExternal: document.getElementById('recosExternal').value,
+                caReceived: document.getElementById('caReceived').value,
+                caIntroBefore: document.getElementById('caIntroBefore').value,
+                ca12Months: document.getElementById('ca12Months').value,
+                mpbDonne: document.getElementById('mpbDonne').value,
+                apports: apports,
+                apportAutres: document.getElementById('apportAutres').value,
+                rating: document.getElementById('rating').value,
+                ameliorations: document.getElementById('ameliorations').value,
+                redflags: document.getElementById('redflags').value,
+                panierMoyen: document.getElementById('panierMoyen').value,
+                caMoyenBNI: document.getElementById('caMoyenBNI').value,
+                tauxConversion: document.getElementById('tauxConversion').value,
+                causesNonConversion: document.getElementById('causesNonConversion').value,
+                apporteursPrincipaux: document.getElementById('apporteursPrincipaux').value,
+                activiteBNI: document.getElementById('activiteBNI').value,
+                clientTop: document.getElementById('clientTop').value,
+                offrePreferee: document.getElementById('offrePreferee').value,
+                projetsAvenir: document.getElementById('projetsAvenir').value,
+                objectifCAActuel: document.getElementById('objectifCAActuel').value,
+                ecartObjectif: document.getElementById('ecartObjectif').value,
+                objectifN1: document.getElementById('objectifN1').value,
+                activitesRecherchees: document.getElementById('activitesRecherchees').value,
+                propositionsAmbassadeur: document.getElementById('propositionsAmbassadeur').value,
+                actionsObjectifs: document.getElementById('actionsObjectifs').value
+            };
+        }
+
+        // Generate PDF
+        function generatePDF() {
+            const form = document.getElementById('interviewForm');
+            if (!form.checkValidity()) {
+                alert('Veuillez remplir tous les champs obligatoires (*)');
+                form.reportValidity();
+                return;
+            }
+
+            const data = collectFormData();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            let y = 20;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.height;
+            const margin = 20;
+
+            // Helper function to check if we need a new page
+            function checkPageBreak(additionalHeight = 10) {
+                if (y + additionalHeight > pageHeight - margin) {
+                    doc.addPage();
+                    y = 20;
+                }
+            }
+
+            // Helper function to add text with word wrap
+            function addText(text, x, size = 10, style = 'normal') {
+                checkPageBreak();
+                doc.setFontSize(size);
+                doc.setFont('helvetica', style);
+                const lines = doc.splitTextToSize(text, 170);
+                doc.text(lines, x, y);
+                y += lines.length * lineHeight;
+            }
+
+            // Header
+            doc.setFillColor(30, 60, 114);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text('RDV ANNUEL D\'ACCOMPAGNEMENT BNI', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Améliorer l\'expérience et le retour sur investissement', 105, 30, { align: 'center' });
+            
+            y = 50;
+            doc.setTextColor(0, 0, 0);
+
+            // Member Info
+            addText('INFORMATIONS DU MEMBRE', 20, 14, 'bold');
+            y += 3;
+            addText(`Membre: ${data.memberName}`, 20);
+            addText(`Date d'intronisation: ${data.introDate}`, 20);
+            if (data.yearsInBNI) addText(`Années BNI: ${data.yearsInBNI}`, 20);
+            y += 5;
+
+            // DONNE
+            addText('CE QUE LE MEMBRE DONNE', 20, 14, 'bold');
+            y += 3;
+            if (data.meetings) addText(`Réunions: ${data.meetings}`, 20);
+            if (data.absences) addText(`Absences/Suppléances: ${data.absences}`, 20);
+            if (data.recosGiven) addText(`Recommandations données: ${data.recosGiven}`, 20);
+            if (data.visitors) addText(`Visiteurs: ${data.visitors}`, 20);
+            if (data.oneToOne) addText(`Tête à Tête: ${data.oneToOne}`, 20);
+            y += 5;
+
+            // REÇU
+            checkPageBreak(30);
+            addText('CE QUE LE MEMBRE REÇOIT', 20, 14, 'bold');
+            y += 3;
+            if (data.recosReceived) addText(`Recommandations reçues: ${data.recosReceived}`, 20);
+            if (data.recosInternal) addText(`  - Internes: ${data.recosInternal}`, 20);
+            if (data.recosExternal) addText(`  - Externes: ${data.recosExternal}`, 20);
+            if (data.caReceived) addText(`CA reçu: ${parseInt(data.caReceived).toLocaleString('fr-FR')} DH`, 20);
+            if (data.caIntroBefore) addText(`CA depuis intronisation: ${parseInt(data.caIntroBefore).toLocaleString('fr-FR')} DH`, 20);
+            if (data.ca12Months) addText(`CA 12 derniers mois: ${parseInt(data.ca12Months).toLocaleString('fr-FR')} DH`, 20);
+            if (data.mpbDonne) addText(`MPB donné: ${data.mpbDonne}`, 20);
+            y += 5;
+
+            // APPORTS BNI
+            checkPageBreak(30);
+            addText('APPORTS POSITIFS DE BNI', 20, 14, 'bold');
+            y += 3;
+            if (data.apports.length > 0) {
+                addText(`- ${data.apports.join(', ')}`, 20);
+            }
+            if (data.apportAutres) addText(`Autres: ${data.apportAutres}`, 20);
+            y += 5;
+
+            // RESSENTI
+            checkPageBreak(30);
+            addText('RESSENTI ET SOUHAITS', 20, 14, 'bold');
+            y += 3;
+            addText(`Ressenti général: ${data.rating}/10`, 20);
+            if (data.ameliorations) addText(`Améliorations souhaitées: ${data.ameliorations}`, 20);
+            if (data.redflags) addText(`Red Flags: ${data.redflags}`, 20);
+            y += 5;
+
+            // ANALYSE
+            checkPageBreak(30);
+            addText('ANALYSE', 20, 14, 'bold');
+            y += 3;
+            if (data.panierMoyen) addText(`Panier moyen: ${parseInt(data.panierMoyen).toLocaleString('fr-FR')} DH`, 20);
+            if (data.caMoyenBNI) addText(`CA moyen BNI: ${parseInt(data.caMoyenBNI).toLocaleString('fr-FR')} DH`, 20);
+            if (data.tauxConversion) addText(`Taux de conversion: ${data.tauxConversion}%`, 20);
+            if (data.causesNonConversion) addText(`Causes de non-conversion: ${data.causesNonConversion}`, 20);
+            if (data.apporteursPrincipaux) addText(`Apporteurs principaux: ${data.apporteursPrincipaux}`, 20);
+            y += 5;
+
+            // PROJET ENTREPRISE
+            checkPageBreak(30);
+            addText('PROJET D\'ENTREPRISE', 20, 14, 'bold');
+            y += 3;
+            if (data.activiteBNI) addText(`Activité BNI: ${data.activiteBNI}`, 20);
+            if (data.clientTop) addText(`Client top: ${data.clientTop}`, 20);
+            if (data.offrePreferee) addText(`Offre préférée: ${data.offrePreferee}`, 20);
+            if (data.projetsAvenir) addText(`Projets à venir: ${data.projetsAvenir}`, 20);
+            y += 5;
+
+            // OBJECTIFS
+            checkPageBreak(30);
+            addText('OBJECTIFS BNI', 20, 14, 'bold');
+            y += 3;
+            if (data.objectifCAActuel) addText(`Objectif CA année en cours: ${parseInt(data.objectifCAActuel).toLocaleString('fr-FR')} DH`, 20);
+            if (data.ecartObjectif) addText(`Écart objectif: ${parseInt(data.ecartObjectif).toLocaleString('fr-FR')} DH`, 20);
+            if (data.objectifN1) addText(`Objectif N+1: ${parseInt(data.objectifN1).toLocaleString('fr-FR')} DH`, 20);
+            if (data.activitesRecherchees) addText(`Activités recherchées: ${data.activitesRecherchees}`, 20);
+            y += 5;
+
+            // PROPOSITIONS AMBASSADEUR
+            checkPageBreak(30);
+            addText('PROPOSITIONS D\'AMBASSADEUR', 20, 14, 'bold');
+            y += 3;
+            if (data.propositionsAmbassadeur) addText(data.propositionsAmbassadeur, 20);
+            if (data.actionsObjectifs) {
+                y += 3;
+                addText('Actions pour atteindre les objectifs:', 20, 12, 'bold');
+                addText(data.actionsObjectifs, 20);
+            }
+
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(9);
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')} - Page ${i}/${pageCount}`, 105, pageHeight - 10, { align: 'center' });
+            }
+
+            // Save PDF
+            const fileName = `BNI_Entretien_${data.memberName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        }
+
+        // Load saved interviews
+        function loadSavedInterviews() {
+            const interviews = JSON.parse(localStorage.getItem('bniInterviews') || '[]');
+            const section = document.getElementById('savedInterviewsSection');
+            const list = document.getElementById('interviewsList');
+
+            if (interviews.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            list.innerHTML = '';
+
+            interviews.reverse().forEach(interview => {
+                const card = document.createElement('div');
+                card.className = 'interview-card';
+                card.innerHTML = `
+                    <div class="interview-info">
+                        <h3>${interview.memberName}</h3>
+                        <p>Date d'intronisation: ${interview.introDate} | Sauvegardé le: ${new Date(interview.saveDate).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div class="interview-actions">
+                        <button class="btn btn-primary btn-small" onclick="loadInterview(${interview.id})">📂 Charger</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteInterview(${interview.id})">🗑️ Supprimer</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Load interview into form
+        function loadInterview(id) {
+            const interviews = JSON.parse(localStorage.getItem('bniInterviews') || '[]');
+            const interview = interviews.find(i => i.id === id);
+            if (!interview) return;
+
+            // Load all fields
+            Object.keys(interview).forEach(key => {
+                const element = document.getElementById(key);
+                if (element && key !== 'id' && key !== 'saveDate' && key !== 'apports') {
+                    element.value = interview[key];
+                }
+            });
+
+            // Load checkboxes
+            document.querySelectorAll('input[name="apport"]').forEach(cb => {
+                cb.checked = interview.apports.includes(cb.value);
+            });
+
+            // Load rating
+            const ratingBtn = document.querySelector(`.rating-btn[data-value="${interview.rating}"]`);
+            if (ratingBtn) {
+                document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+                ratingBtn.classList.add('active');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            alert('✅ Entretien chargé avec succès !');
+        }
+
+        // Delete interview
+        function deleteInterview(id) {
+            if (!confirm('Voulez-vous vraiment supprimer cet entretien ?')) return;
+
+            let interviews = JSON.parse(localStorage.getItem('bniInterviews') || '[]');
+            interviews = interviews.filter(i => i.id !== id);
+            localStorage.setItem('bniInterviews', JSON.stringify(interviews));
+            loadSavedInterviews();
+            alert('🗑️ Entretien supprimé');
+        }
+
+        // Load saved interviews on page load
+        window.addEventListener('DOMContentLoaded', loadSavedInterviews);
+    </script>
+</body>
+</html>
