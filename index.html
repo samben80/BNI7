@@ -267,6 +267,75 @@
             margin-bottom: 20px;
             border: 1px solid #c3e6cb;
         }
+
+        .kpi-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .kpi-container .form-group {
+            flex: 1;
+        }
+
+        .kpi-badge {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .kpi-badge.excellent {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .kpi-badge.good {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .kpi-badge.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .kpi-badge.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .kpi-badge.neutral {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            opacity: 0.9;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .kpi-badge {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -302,30 +371,59 @@
                 <!-- Section: DONNE -->
                 <div class="section">
                     <h2 class="section-title">📤 Ce que le membre DONNE</h2>
-                    <div class="form-row">
+                    
+                    <!-- Taux de présence -->
+                    <div class="kpi-container">
                         <div class="form-group">
                             <label for="meetings">Nombre de réunions sur l'année écoulée</label>
-                            <input type="number" id="meetings" placeholder="Ex: 67">
+                            <input type="number" id="meetings" placeholder="Ex: 67" oninput="updateKPIs()">
                         </div>
+                        <div class="kpi-badge neutral" id="kpiPresence">
+                            <span class="kpi-label">Taux de présence</span>
+                            <span class="kpi-value">--%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="margin-top: 20px;">
                         <div class="form-group">
                             <label for="absences">Nombre d'absences / suppléances</label>
                             <input type="number" id="absences" placeholder="Ex: 9">
                         </div>
                     </div>
-                    <div class="form-row">
+                    
+                    <!-- % Recommandations -->
+                    <div class="kpi-container" style="margin-top: 20px;">
                         <div class="form-group">
                             <label for="recosGiven">Nombre de recommandations données</label>
-                            <input type="number" id="recosGiven" placeholder="Ex: 101">
+                            <input type="number" id="recosGiven" placeholder="Ex: 101" oninput="updateKPIs()">
                         </div>
-                        <div class="form-group">
-                            <label for="visitors">Nombre de visiteurs</label>
-                            <input type="number" id="visitors" placeholder="Ex: 13">
+                        <div class="kpi-badge neutral" id="kpiRecos">
+                            <span class="kpi-label">% Recommandations</span>
+                            <span class="kpi-value">--%</span>
                         </div>
                     </div>
-                    <div class="form-row">
+                    
+                    <!-- % Invité -->
+                    <div class="kpi-container" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label for="visitors">Nombre de visiteurs</label>
+                            <input type="number" id="visitors" placeholder="Ex: 13" oninput="updateKPIs()">
+                        </div>
+                        <div class="kpi-badge neutral" id="kpiVisitors">
+                            <span class="kpi-label">% Invité</span>
+                            <span class="kpi-value">--%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- % TàT -->
+                    <div class="kpi-container" style="margin-top: 20px;">
                         <div class="form-group">
                             <label for="oneToOne">Nombre de TàT (Tête à Tête)</label>
-                            <input type="number" id="oneToOne" placeholder="Ex: 43">
+                            <input type="number" id="oneToOne" placeholder="Ex: 43" oninput="updateKPIs()">
+                        </div>
+                        <div class="kpi-badge neutral" id="kpiOneToOne">
+                            <span class="kpi-label">% TàT</span>
+                            <span class="kpi-value">--%</span>
                         </div>
                     </div>
                 </div>
@@ -543,6 +641,77 @@
     </div>
 
     <script>
+        // KPI Calculation and Display
+        function updateKPIs() {
+            // Taux de présence: (Réunions / 48) * 100
+            const meetings = parseFloat(document.getElementById('meetings').value) || 0;
+            const presenceRate = (meetings / 48) * 100;
+            updateKPIBadge('kpiPresence', presenceRate, 'Taux de présence', [
+                { threshold: 90, class: 'excellent' },
+                { threshold: 75, class: 'good' },
+                { threshold: 60, class: 'warning' },
+                { threshold: 0, class: 'danger' }
+            ]);
+
+            // % Recommandations: (Recos / 48) * 100
+            const recosGiven = parseFloat(document.getElementById('recosGiven').value) || 0;
+            const recosRate = (recosGiven / 48) * 100;
+            updateKPIBadge('kpiRecos', recosRate, '% Recommandations', [
+                { threshold: 150, class: 'excellent' },
+                { threshold: 100, class: 'good' },
+                { threshold: 50, class: 'warning' },
+                { threshold: 0, class: 'danger' }
+            ]);
+
+            // % Invité: (Visiteurs / 12) * 100
+            const visitors = parseFloat(document.getElementById('visitors').value) || 0;
+            const visitorsRate = (visitors / 12) * 100;
+            updateKPIBadge('kpiVisitors', visitorsRate, '% Invité', [
+                { threshold: 100, class: 'excellent' },
+                { threshold: 75, class: 'good' },
+                { threshold: 50, class: 'warning' },
+                { threshold: 0, class: 'danger' }
+            ]);
+
+            // % TàT: (Tête-à-Tête / 24) * 100
+            const oneToOne = parseFloat(document.getElementById('oneToOne').value) || 0;
+            const oneToOneRate = (oneToOne / 24) * 100;
+            updateKPIBadge('kpiOneToOne', oneToOneRate, '% TàT', [
+                { threshold: 100, class: 'excellent' },
+                { threshold: 75, class: 'good' },
+                { threshold: 50, class: 'warning' },
+                { threshold: 0, class: 'danger' }
+            ]);
+        }
+
+        function updateKPIBadge(badgeId, value, label, thresholds) {
+            const badge = document.getElementById(badgeId);
+            if (!badge) return;
+
+            // Remove all class names
+            badge.className = 'kpi-badge';
+
+            // Determine the appropriate class based on thresholds
+            let badgeClass = 'neutral';
+            if (value > 0) {
+                for (const threshold of thresholds) {
+                    if (value >= threshold.threshold) {
+                        badgeClass = threshold.class;
+                        break;
+                    }
+                }
+            }
+
+            badge.classList.add(badgeClass);
+            
+            // Update content
+            const displayValue = value > 0 ? value.toFixed(1) + '%' : '--%';
+            badge.innerHTML = `
+                <span class="kpi-label">${label}</span>
+                <span class="kpi-value">${displayValue}</span>
+            `;
+        }
+
         // Rating buttons functionality
         document.querySelectorAll('.rating-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -585,6 +754,17 @@
             const apports = Array.from(document.querySelectorAll('input[name="apport"]:checked'))
                 .map(cb => cb.value);
 
+            // Calculate KPIs
+            const meetings = parseFloat(document.getElementById('meetings').value) || 0;
+            const recosGiven = parseFloat(document.getElementById('recosGiven').value) || 0;
+            const visitors = parseFloat(document.getElementById('visitors').value) || 0;
+            const oneToOne = parseFloat(document.getElementById('oneToOne').value) || 0;
+
+            const kpiPresence = (meetings / 48) * 100;
+            const kpiRecos = (recosGiven / 48) * 100;
+            const kpiVisitors = (visitors / 12) * 100;
+            const kpiOneToOne = (oneToOne / 24) * 100;
+
             return {
                 memberName: document.getElementById('memberName').value,
                 introDate: document.getElementById('introDate').value,
@@ -594,6 +774,10 @@
                 recosGiven: document.getElementById('recosGiven').value,
                 visitors: document.getElementById('visitors').value,
                 oneToOne: document.getElementById('oneToOne').value,
+                kpiPresence: kpiPresence.toFixed(1),
+                kpiRecos: kpiRecos.toFixed(1),
+                kpiVisitors: kpiVisitors.toFixed(1),
+                kpiOneToOne: kpiOneToOne.toFixed(1),
                 recosReceived: document.getElementById('recosReceived').value,
                 recosInternal: document.getElementById('recosInternal').value,
                 recosExternal: document.getElementById('recosExternal').value,
@@ -642,6 +826,14 @@
             const pageHeight = doc.internal.pageSize.height;
             const margin = 20;
 
+            // Helper function to get KPI color based on value
+            function getKPIColor(value) {
+                if (value >= 100) return [16, 185, 129]; // Green
+                if (value >= 75) return [59, 130, 246];  // Blue
+                if (value >= 50) return [245, 158, 11];  // Orange
+                return [239, 68, 68]; // Red
+            }
+
             // Helper function to check if we need a new page
             function checkPageBreak(additionalHeight = 10) {
                 if (y + additionalHeight > pageHeight - margin) {
@@ -685,11 +877,63 @@
             // DONNE
             addText('CE QUE LE MEMBRE DONNE', 20, 14, 'bold');
             y += 3;
-            if (data.meetings) addText(`Réunions: ${data.meetings}`, 20);
+            
+            // KPI Performance Table
+            doc.setFillColor(240, 240, 240);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('INDICATEURS DE PERFORMANCE (KPI)', 25, y + 5);
+            y += 10;
+            
+            // Table headers
+            doc.setFillColor(30, 60, 114);
+            doc.rect(20, y, 85, 10, 'F');
+            doc.rect(105, y, 42.5, 10, 'F');
+            doc.rect(147.5, y, 42.5, 10, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.text('Métrique', 25, y + 7);
+            doc.text('Valeur', 115, y + 7);
+            doc.text('KPI %', 160, y + 7);
+            y += 10;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            
+            // Table rows
+            const kpiData = [
+                { label: 'Réunions', value: data.meetings || '-', kpi: data.kpiPresence, target: '48', color: getKPIColor(parseFloat(data.kpiPresence)) },
+                { label: 'Recommandations données', value: data.recosGiven || '-', kpi: data.kpiRecos, target: '48', color: getKPIColor(parseFloat(data.kpiRecos)) },
+                { label: 'Visiteurs', value: data.visitors || '-', kpi: data.kpiVisitors, target: '12', color: getKPIColor(parseFloat(data.kpiVisitors)) },
+                { label: 'Tête à Tête', value: data.oneToOne || '-', kpi: data.kpiOneToOne, target: '24', color: getKPIColor(parseFloat(data.kpiOneToOne)) }
+            ];
+            
+            kpiData.forEach((row, index) => {
+                const bgColor = index % 2 === 0 ? [255, 255, 255] : [248, 248, 248];
+                doc.setFillColor(...bgColor);
+                doc.rect(20, y, 85, 8, 'F');
+                doc.rect(105, y, 42.5, 8, 'F');
+                doc.rect(147.5, y, 42.5, 8, 'F');
+                
+                doc.setTextColor(0, 0, 0);
+                doc.text(row.label, 25, y + 5.5);
+                doc.text(row.value, 115, y + 5.5);
+                
+                // KPI badge color
+                doc.setFillColor(...row.color);
+                doc.roundedRect(152, y + 1, 33, 6, 2, 2, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.text(row.kpi + '%', 168.5, y + 5.5, { align: 'center' });
+                doc.setFont('helvetica', 'normal');
+                
+                y += 8;
+            });
+            
+            y += 5;
+            doc.setTextColor(0, 0, 0);
             if (data.absences) addText(`Absences/Suppléances: ${data.absences}`, 20);
-            if (data.recosGiven) addText(`Recommandations données: ${data.recosGiven}`, 20);
-            if (data.visitors) addText(`Visiteurs: ${data.visitors}`, 20);
-            if (data.oneToOne) addText(`Tête à Tête: ${data.oneToOne}`, 20);
             y += 5;
 
             // REÇU
@@ -820,7 +1064,7 @@
             // Load all fields
             Object.keys(interview).forEach(key => {
                 const element = document.getElementById(key);
-                if (element && key !== 'id' && key !== 'saveDate' && key !== 'apports') {
+                if (element && key !== 'id' && key !== 'saveDate' && key !== 'apports' && !key.startsWith('kpi')) {
                     element.value = interview[key];
                 }
             });
@@ -836,6 +1080,9 @@
                 document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
                 ratingBtn.classList.add('active');
             }
+
+            // Recalculate KPIs
+            updateKPIs();
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
             alert('✅ Entretien chargé avec succès !');
